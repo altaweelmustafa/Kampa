@@ -4,10 +4,12 @@ import Navbar from "./components/Navbar";
 import FilterDrawer from "./components/FilterDrawer";
 import TechniqueCard from "./components/TechniqueCard";
 import TechniqueModal from "./components/TechniqueModal";
-import { techniques } from "./data/techniques";
+import NewTechniqueModal from "./components/NewTechniqueModal";
+import HomePage from "./components/HomePage";
+import AboutPage from "./components/AboutPage";
+import { techniques as initialTechniques } from "./data/techniques";
 import "./styles/kampa.css";
 
-// inject fonts & FA
 const fontLink = document.createElement("link");
 fontLink.rel = "stylesheet";
 fontLink.href = "https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap";
@@ -20,51 +22,53 @@ document.head.appendChild(faLink);
 
 const antTheme = {
   token: {
-    colorPrimary: "#1A7A8A",
-    colorBgBase: "#0B1E3D",
-    colorTextBase: "#F5F7FA",
-    colorBorder: "#1C3157",
-    colorBgContainer: "#102347",
-    colorBgElevated: "#0F2850",
+    colorPrimary: "#2EC4B6",
+    colorBgBase: "#141414",
+    colorTextBase: "#EFEFEF",
+    colorBorder: "#2E2E2E",
+    colorBgContainer: "#1C1C1C",
+    colorBgElevated: "#181818",
     fontFamily: "'IBM Plex Sans', sans-serif",
     borderRadius: 4,
-    colorText: "#F5F7FA",
-    colorTextSecondary: "#A8B4C8",
-    colorTextPlaceholder: "#A8B4C8",
-    colorFillSecondary: "#1C3157",
-    colorIcon: "#A8B4C8",
+    colorText: "#EFEFEF",
+    colorTextSecondary: "#7A7A7A",
+    colorTextPlaceholder: "#7A7A7A",
+    colorFillSecondary: "#2E2E2E",
+    colorIcon: "#7A7A7A",
   },
   components: {
     Input: {
-      colorBgContainer: "#102347",
-      colorBorder: "#1C3157",
-      hoverBorderColor: "#1A7A8A",
-      activeBorderColor: "#1A7A8A",
-      colorText: "#F5F7FA",
+      colorBgContainer: "#1C1C1C",
+      colorBorder: "#2E2E2E",
+      hoverBorderColor: "#2EC4B6",
+      activeBorderColor: "#2EC4B6",
+      colorText: "#EFEFEF",
       activeShadow: "none",
     },
-    Card: {
-      colorBgContainer: "#102347",
-      colorBorderSecondary: "#1C3157",
-    },
-    Drawer: {
-      colorBgElevated: "#0F2850",
-    },
-    Checkbox: {
-      colorPrimary: "#1A7A8A",
-      colorBorder: "#1C3157",
-    },
-    Badge: {
-      colorBgContainer: "#0B1E3D",
-    },
+    Card: { colorBgContainer: "#1C1C1C", colorBorderSecondary: "#2E2E2E" },
+    Drawer: { colorBgElevated: "#181818" },
+    Checkbox: { colorPrimary: "#2EC4B6", colorBorder: "#2E2E2E" },
+    Badge: { colorBgContainer: "#141414" },
   },
 };
 
 export default function Kampa() {
+  const [page, setPage] = useState("home");
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [search, setSearch] = useState("");
   const [activeFilters, setActiveFilters] = useState([]);
   const [selected, setSelected] = useState(null);
+  const [showNewModal, setShowNewModal] = useState(false);
+  const [techniques, setTechniques] = useState(initialTechniques);
+
+  const navigate = (target) => {
+    if (target === "new") { setShowNewModal(true); return; }
+    setPage(target);
+    if (target !== "techniques") {
+      setSearch("");
+      setActiveFilters([]);
+    }
+  };
 
   const toggleFilter = (item) =>
     setActiveFilters((prev) =>
@@ -72,6 +76,11 @@ export default function Kampa() {
     );
 
   const clearFilters = () => setActiveFilters([]);
+
+  const handleAddTechnique = (newTechnique) => {
+    setTechniques((prev) => [...prev, newTechnique]);
+    setPage("techniques");
+  };
 
   const filtered = useMemo(() => {
     let list = techniques;
@@ -90,12 +99,15 @@ export default function Kampa() {
       );
     }
     return list;
-  }, [search, activeFilters]);
+  }, [search, activeFilters, techniques]);
 
   return (
     <ConfigProvider theme={antTheme}>
       <Navbar
+        page={page}
+        onNavigate={navigate}
         onFilterOpen={() => setDrawerOpen(true)}
+        onNewTechnique={() => setShowNewModal(true)}
         total={techniques.length}
         filtered={filtered.length}
         activeCount={activeFilters.length}
@@ -109,58 +121,51 @@ export default function Kampa() {
         onClear={clearFilters}
       />
 
-      <div className="page">
-        {/* Search */}
-        <div className="search-row">
-          <Input
-            prefix={
-              <i
-                className="fa-solid fa-magnifying-glass"
-                style={{ color: "var(--white-dim)", fontSize: 13 }}
-              />
-            }
-            placeholder="Search techniques, positions, types…"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            allowClear
-          />
+      {/* Pages */}
+      {page === "home" && <HomePage onNavigate={navigate} />}
+
+      {page === "about" && <AboutPage />}
+
+      {page === "techniques" && (
+        <div className="page">
+          <div className="search-row">
+            <Input
+              prefix={<i className="fa-solid fa-magnifying-glass" style={{ color: "var(--white-dim)", fontSize: 13 }} />}
+              placeholder="Search techniques, positions, types…"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              allowClear
+            />
+          </div>
+
+          {activeFilters.length > 0 && (
+            <div className="active-filters">
+              {activeFilters.map((f) => (
+                <Tag key={f} closable onClose={() => toggleFilter(f)}>{f}</Tag>
+              ))}
+            </div>
+          )}
+
+          {filtered.length === 0 ? (
+            <Empty description="No techniques match your filters." style={{ marginTop: 80 }} />
+          ) : (
+            <div className="cards-grid">
+              {filtered.map((t) => (
+                <TechniqueCard key={t.id} technique={t} onClick={setSelected} />
+              ))}
+            </div>
+          )}
         </div>
+      )}
 
-        {/* Active filter pills */}
-        {activeFilters.length > 0 && (
-          <div className="active-filters">
-            {activeFilters.map((f) => (
-              <Tag key={f} closable onClose={() => toggleFilter(f)}>
-                {f}
-              </Tag>
-            ))}
-          </div>
-        )}
-
-        {/* Grid */}
-        {filtered.length === 0 ? (
-          <Empty
-            description="No techniques match your filters."
-            style={{ marginTop: 80 }}
-          />
-        ) : (
-          <div className="cards-grid">
-            {filtered.map((t) => (
-              <TechniqueCard
-                key={t.id}
-                technique={t}
-                onClick={setSelected}
-              />
-            ))}
-          </div>
-        )}
-      </div>
-
-      {/* Detail modal */}
       {selected && (
-        <TechniqueModal
-          technique={selected}
-          onClose={() => setSelected(null)}
+        <TechniqueModal technique={selected} onClose={() => setSelected(null)} />
+      )}
+
+      {showNewModal && (
+        <NewTechniqueModal
+          onClose={() => setShowNewModal(false)}
+          onAdd={handleAddTechnique}
         />
       )}
     </ConfigProvider>

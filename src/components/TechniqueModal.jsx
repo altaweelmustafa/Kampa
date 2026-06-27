@@ -21,7 +21,6 @@ export default function TechniqueModal({ technique, onClose }) {
         </div>
 
         <div className="modal-card__body">
-          <span className="modal-card__id">{technique.id}</span>
           <div className="modal-card__name">{technique.name}</div>
           <p className="modal-card__desc">{technique.description}</p>
 
@@ -31,9 +30,6 @@ export default function TechniqueModal({ technique, onClose }) {
             ))}
           </div>
 
-          <button className="modal-card__close" onClick={onClose}>
-            close
-          </button>
         </div>
       </div>
     </div>
