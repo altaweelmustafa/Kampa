@@ -384,36 +384,6 @@ body {
   line-height: 20px;
 }
 
-.tag--position {
-  background: rgba(168, 180, 200, 0.08) !important;
-  border-color: rgba(168, 180, 200, 0.2) !important;
-  color: var(--white-dim) !important;
-}
-
-.tag--type {
-  background: rgba(46, 196, 182, 0.1) !important;
-  border-color: rgba(46, 196, 182, 0.3) !important;
-  color: var(--teal-light) !important;
-}
-
-.tag--offense {
-  background: rgba(214, 40, 40, 0.1) !important;
-  border-color: rgba(214, 40, 40, 0.28) !important;
-  color: var(--red) !important;
-}
-
-.tag--defense {
-  background: rgba(233, 196, 106, 0.1) !important;
-  border-color: rgba(233, 196, 106, 0.28) !important;
-  color: var(--amber) !important;
-}
-
-.tag--level {
-  background: transparent !important;
-  border-color: var(--navy-border) !important;
-  color: var(--navy-border) !important;
-}
-
 /* ── Drawer ────────────────────────────────────────────────────────────────── */
 .ant-drawer-content {
   background: var(--navy-mid) !important;
